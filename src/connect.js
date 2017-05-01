@@ -80,9 +80,20 @@ function connect(mapStoreStateToProps, mapDispatchToProps, mergeProps, options =
 			}
 
 			/**
+			 * Lifecycle. Subscribes to the store's changes.
+			 */
+			created() {
+				if (shouldSubscribe) {
+					this.unsubscribeStore_ = this.getStore().subscribe(
+						this.handleStoreChange_.bind(this)
+					);
+				}
+			}
+
+			/**
 			 * Lifecycle. Unsubscribes from the store's state changes.
 			 */
-			detached() {
+			disposed() {
 				if (this.unsubscribeStore_) {
 					this.unsubscribeStore_();
 					this.unsubscribeStore_ = null;
@@ -202,12 +213,6 @@ function connect(mapStoreStateToProps, mapDispatchToProps, mergeProps, options =
 			 * Renders the wrapped component with the appropriate data.
 			 */
 			render() {
-				if (shouldSubscribe && !this.unsubscribeStore_) {
-					this.unsubscribeStore_ = this.getStore().subscribe(
-						this.handleStoreChange_.bind(this)
-					);
-				}
-
 				return <WrappedComponent {...this.getChildProps_()} />;
 			}
 

@@ -112,7 +112,7 @@ describe('connect', () => {
 			assert.strictEqual(1, store.subscribe.callCount);
 		});
 
-		it('should unsubscribe to given store when detached if "mapStoreStateToProps"', () => {
+		it('should unsubscribe to given store when disposed if "mapStoreStateToProps"', () => {
 			const unsubscribe = sinon.stub();
 			const store = buildStoreStub();
 			store.subscribe.returns(unsubscribe);
@@ -123,7 +123,7 @@ describe('connect', () => {
 			});
 			assert.strictEqual(0, unsubscribe.callCount);
 
-			component.detach();
+			component.dispose();
 			assert.strictEqual(1, unsubscribe.callCount);
 		});
 	});
