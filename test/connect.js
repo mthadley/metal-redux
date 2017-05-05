@@ -15,6 +15,9 @@ describe('connect', () => {
 				return <div>{this.props.foo}</div>;
 			}
 		}
+		TestComponent.PROPS = {
+			foo: {}
+		};
 		OriginalComponent = TestComponent;
 	});
 
@@ -53,6 +56,44 @@ describe('connect', () => {
 		const names = Object.keys(component.components);
 		const child = component.components[names[0]];
 		assert.strictEqual('foo', child.props.foo);
+	});
+
+	it('should re-render on second render if store has changed', done => {
+		const storeStub = buildStoreStub();
+		storeStub.getState.returns({count: 1});
+		const emitChange = () => storeStub.subscribe.firstCall.args[0]();
+
+		class CreatedTestComponent extends JSXComponent {
+			created() {
+				storeStub.getState.returns({count: 2});
+				emitChange();
+			}
+
+			render() {
+				return <div>{this.props.foo}</div>;
+			}
+		}
+		CreatedTestComponent.PROPS = {
+			foo: {}
+		};
+
+		const TestComponent = connect(
+			(state, ownProps) => ({
+				foo: state.count
+			})
+		)(CreatedTestComponent);
+
+		component = new TestComponent({
+			store: storeStub
+		});
+
+		const child = component.getWrappedInstance();
+		component.props.bar = true;
+
+		component.once('rendered', () => {
+			assert.strictEqual(2, child.props.foo);
+			done();
+		});
 	});
 
 	describe('store', () => {
@@ -510,14 +551,14 @@ describe('connect', () => {
 	});
 
 	describe('getWrappedInstance', () => {
-		it('should return the child componnet', () => {
+		it('should return the child component', () => {
 			const TestComponent = connect(sinon.stub())(OriginalComponent);
 			component = new TestComponent({
 				store: buildStoreStub()
 			});
 			assert.instanceOf(component.getWrappedInstance(), OriginalComponent);
-		})
-	})
+		});
+	});
 });
 
 function buildStoreStub() {

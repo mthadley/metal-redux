@@ -219,7 +219,10 @@ function connect(mapStoreStateToProps, mapDispatchToProps, mergeProps, options =
 			/**
 			 * Lifecycle. Resets the flags indicating that data has changed.
 			 */
-			rendered() {
+			rendered(firstRender) {
+				// if (firstRender) {
+				// 	return;
+				// }
 				this.hasStorePropsChanged_ = false;
 				this.hasOwnPropsChanged_ = false;
 			}
